@@ -8,7 +8,7 @@ from decouple import config
 from .tool_calculator import CalculatorTool
 from .tool_websearch import WebSearchTool
 from .tool_pdfinfo import PDFInfoTool
-from .tool_currency import CurrencyConverterTool
+from .tool_currency import CurrencyConverterTool # мой тул
 
 class LLMAgent:
     """
@@ -91,8 +91,7 @@ class LLMAgent:
         - **calculator**: For any math-related questions (numbers, calculations). Use it with the full expression.
         - **web_search**: For finding any information about the real world (current events, facts, definitions). Use it with the user's question or a clear search query. USE ONLY RUSSIAN LANGUAGE QUERIES in this tool.
         - **pdf_info**: For extracting information from PDF files (metadata, page count, text content). Use it with a local file path or a URL to a PDF file.
-        - **currency**: For converting amounts between currencies (e.g. USD to RUB). Input format: "FROM TO AMOUNT", for example "USD RUB 100".
-        Your response MUST be ONLY a JSON object of the following format.
+        - **currency**: MANDATORY tool for currency conversion. You MUST use this tool when the user asks to convert currencies or asks "сколько X в Y". Input format: "FROM TO AMOUNT", e.g. "USD RUB 100". ALWAYS prefer currency over web_search for currency questions.
         If one or more tools are needed to answer, return JSON of this structure:
         {{
         "plan": [

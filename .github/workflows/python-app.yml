@@ -61,7 +61,7 @@ jobs:
         python -c "
         from llm_agent.core_v2 import LLMAgent
         agent = LLMAgent(local=True, ollama_model='qwen3.5:0.8b')
-        response = agent.process_query('Используй инструмент currency: сконвертируй 100 USD в RUB')
+        response = agent.process_query('convert 100 USD to RUB using the currency tool')
         print('AGENT RESPONSE:', response)
         "
 
