@@ -26,6 +26,23 @@ jobs:
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+    - name: Download and extract Ollama manually
+      run: |
+        if [ "${{ runner.arch }}" = "X64" ]; then ARCH="amd64"; else ARCH="arm64"; fi
+        curl -fsSL "https://ollama.com/download/ollama-linux-${ARCH}.tar.zst" -o ollama.tar.zst
+        mkdir -p .ollama-install
+        tar -C .ollama-install --zstd -xf ollama.tar.zst
+        rm ollama.tar.zst
+        echo "$(pwd)/.ollama-install/bin" >> $GITHUB_PATH
+
+    - name: Start Ollama Service and Pull Model
+      run: |
+        export OLLAMA_NUM_PARALLEL=1
+        export OLLAMA_MAX_LOADED_MODELS=1
+        ollama serve > ollama.log 2>&1 &
+        sleep 5
+        ollama pull qwen3.5:0.8b
+
     - name: Test with pytest and coverage
       working-directory: ./3_1_LLM_agent
       env:
@@ -35,6 +52,18 @@ jobs:
         coverage run -m pytest -v -m "not integration"
         coverage report
         echo "COVERAGE=$(coverage report | grep TOTAL | awk '{print $NF}')" >> $GITHUB_ENV
+
+    - name: Run agent and verify currency tool is called
+      working-directory: ./3_1_LLM_agent
+      env:
+        PYTHONPATH: .
+      run: |
+        python -c "
+        from llm_agent.core_v2 import LLMAgent
+        agent = LLMAgent(local=True, ollama_model='qwen3.5:0.8b')
+        response = agent.process_query('Используй инструмент currency: сконвертируй 100 USD в RUB')
+        print('AGENT RESPONSE:', response)
+        "
 
     - name: Create the Badge
       if: github.ref == 'refs/heads/main'
