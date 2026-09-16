@@ -5,3 +5,5 @@ ddgs
 pytest
 pypdf
 pdfplumber
+pytest-cov
+coverage-badge
